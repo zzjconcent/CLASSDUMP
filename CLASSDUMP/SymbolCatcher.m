@@ -58,6 +58,7 @@ char * get_filename(char *path) {
     uint32_t imageCount = _dyld_image_count();
     uintptr_t uikitStart;
     uintptr_t uikitEnd;
+    NSString *currentProgressName = [[NSProcessInfo processInfo] processName];
 
     for (int i = 0; i < imageCount; i++) {
         const char *imageName = _dyld_get_image_name(i);
@@ -69,7 +70,7 @@ char * get_filename(char *path) {
             if (((const struct load_command *)command)->cmd == LCSEGMENT) {
                 const struct segment_command *seg_cmd = (const struct segment_command *)command;
 
-                if (![[NSString stringWithCString:seg_cmd->segname encoding:NSUTF8StringEncoding] isEqualToString:@"__PAGEZERO"] || i != 0) {
+                if (![[NSString stringWithCString:seg_cmd->segname encoding:NSUTF8StringEncoding] isEqualToString:@"__PAGEZERO"] || ![currentProgressName isEqualToString:[NSString stringWithUTF8String:get_filename(imageName)]]) {
                     vmsize += seg_cmd->vmsize;
                 }
             }
